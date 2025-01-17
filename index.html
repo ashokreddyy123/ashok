@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Task Management App</title>
+  <style>
+    /* CSS for the Task Management App */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background-color: #f4f4f9;
+    }
+    h2, h3 {
+      text-align: center;
+    }
+    .form-container, .lanes-container {
+      margin-bottom: 20px;
+    }
+    #task-form {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    #task-form input, #task-form button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    #task-form input {
+      flex: 1;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    #task-form button {
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #task-form button:hover {
+      background-color: #218838;
+    }
+    .lanes-container {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .lane {
+      flex: 1;
+      background: white;
+      padding: 10px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+    .lane h3 {
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+      margin-bottom: 10px;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+    }
+    li {
+      background: #f9f9f9;
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      position: relative;
+    }
+    button {
+      margin: 5px;
+      padding: 5px 10px;
+      font-size: 14px;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .delete {
+      background-color: #dc3545;
+      color: white;
+    }
+    .delete:hover {
+      background-color: #c82333;
+    }
+    .move {
+      background-color: #007bff;
+      color: white;
+    }
+    .move:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Task Management App</h2>
+    <form id="task-form">
+      <input type="text" id="task-title" placeholder="Enter Task Title" required />
+      <button type="submit">Add Task</button>
+    </form>
+  </div>
+
+  <div class="lanes-container">
+    <div class="lane" id="todo-lane">
+      <h3>To-Do</h3>
+      <ul id="todo-tasks"></ul>
+    </div>
+    <div class="lane" id="inprogress-lane">
+      <h3>In Progress</h3>
+      <ul id="inprogress-tasks"></ul>
+    </div>
+    <div class="lane" id="done-lane">
+      <h3>Done</h3>
+      <ul id="done-tasks"></ul>
+    </div>
+  </div>
+
+  <script>
+    // JavaScript for Task Management App
+
+    // Task state
+    let tasks = [];
+
+    // DOM Elements
+    const taskForm = document.getElementById("task-form");
+    const todoTasks = document.getElementById("todo-tasks");
+    const inProgressTasks = document.getElementById("inprogress-tasks");
+    const doneTasks = document.getElementById("done-tasks");
+
+    // Handle form submission
+    taskForm.addEventListener("submit", (event) => {
+      event.preventDefault();
+      const taskTitle = document.getElementById("task-title").value;
+
+      const task = {
+        id: Date.now(), // Unique ID
+        title: taskTitle,
+        status: "todo", // Default status
+      };
+
+      tasks.push(task); // Add task to the state
+      renderTasks();
+      taskForm.reset(); // Clear form input
+    });
+
+    // Render tasks in lanes
+    function renderTasks() {
+      // Clear all lanes
+      todoTasks.innerHTML = "";
+      inProgressTasks.innerHTML = "";
+      doneTasks.innerHTML = "";
+
+      tasks.forEach((task) => {
+        const taskItem = document.createElement("li");
+        taskItem.innerHTML = `
+          <span>${task.title}</span>
+          <button class="move" onclick="moveTask(${task.id}, 'forward')">➡</button>
+          <button class="move" onclick="moveTask(${task.id}, 'backward')">⬅</button>
+          <button class="delete" onclick="deleteTask(${task.id})">❌</button>
+        `;
+
+        // Append task to the appropriate lane
+        if (task.status === "todo") {
+          todoTasks.appendChild(taskItem);
+        } else if (task.status === "inprogress") {
+          inProgressTasks.appendChild(taskItem);
+        } else if (task.status === "done") {
+          doneTasks.appendChild(taskItem);
+        }
+      });
+    }
+
+    // Delete a task
+    function deleteTask(id) {
+      tasks = tasks.filter((task) => task.id !== id); // Remove task by ID
+      renderTasks();
+    }
+
+    // Move a task between lanes
+    function moveTask(id, direction) {
+      const task = tasks.find((t) => t.id === id);
+      if (direction === "forward") {
+        if (task.status === "todo") task.status = "inprogress";
+        else if (task.status === "inprogress") task.status = "done";
+      } else if (direction === "backward") {
+        if (task.status === "done") task.status = "inprogress";
+        else if (task.status === "inprogress") task.status = "todo";
+      }
+      renderTasks();
+    }
+  </script>
+</body>
+</html>
